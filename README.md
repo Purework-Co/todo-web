@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Todo App
+
+A full-stack todo application built with Next.js 16, Auth.js v5, Prisma, and PostgreSQL.
+
+## Features
+
+- User authentication (credentials + Google OAuth)
+- Create, read, update, and delete todos
+- Protected dashboard routes
+- JWT-based sessions
+
+## Tech Stack
+
+- **Framework**: Next.js 16.2.3
+- **Auth**: Auth.js v5 (beta) with JWT strategy
+- **Database**: Prisma 5.22 + PostgreSQL
+- **UI**: shadcn/ui + Tailwind CSS v4 + React 19
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- PostgreSQL (running on localhost:5432)
+
+### Setup
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Configure environment variables in `.env`:
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/todo
+AUTH_SECRET=<run: openssl rand -base64 32>
+NEXTAUTH_URL=http://localhost:3000
+GOOGLE_CLIENT_ID=<from Google Cloud Console>
+GOOGLE_CLIENT_SECRET=<from Google Cloud Console>
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up the database:
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Available Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build (includes lint + typecheck) |
+| `npm run lint` | Run ESLint |
+| `npm run test` | Run Vitest tests |
+| `npx prisma studio` | Open Prisma database browser |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── auth/          # Auth.js endpoints
+│   │   └── todos/        # Todo CRUD API
+│   ├── auth/signin/      # Sign in/register page
+│   └── dashboard/       # Protected app area
+├── lib/
+│   ├── auth.ts           # Auth.js configuration
+│   └── prisma.ts        # Prisma client
+└── middleware.ts        # Route protection
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API Routes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `POST /api/auth/register` - Register new user
+- `GET /api/todos` - List user's todos
+- `POST /api/todos` - Create todo
+- `PUT /api/todos/[id]` - Update todo
+- `DELETE /api/todos/[id]` - Delete todo
+
+All `/api/todos/*` routes require authentication.
+
+## Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable Google+ API or People API
+3. Create OAuth credentials (web app)
+4. Add redirect URI: `http://localhost:3000/api/auth/callback/google`
